@@ -39,8 +39,8 @@ jobs:
       - name: Get first tag only
         id: first_tag
         run: |
-          echo "tag=$(echo '${{ steps.meta.outputs.tags }}' | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
-
+          echo ${{steps.meta.outputs.tags}}
+          echo "tag=$(echo '${{ steps.meta.outputs.tags }}' | cut -d' ' -f1)" >> "$GITHUB_OUTPUT
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
