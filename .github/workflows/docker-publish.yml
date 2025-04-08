@@ -7,7 +7,7 @@ on:
 jobs:
   push_to_registries:
     name: Push Docker image to multiple registries
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       packages: write
       contents: read
@@ -39,16 +39,18 @@ jobs:
       - name: Get first tag only
         id: first_tag
         run: |
-          echo ${{steps.meta.outputs.tags}}
-          echo "tag=$(echo '${{ steps.meta.outputs.tags }}' | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "All tags: ${{ steps.meta.outputs.tags }}"
+          first_tag=$(echo "${{ steps.meta.outputs.tags }}" | awk '{print $1}')
+          echo "tag=$first_tag" >> $GITHUB_ENV
+          echo "first_tag=$first_tag" >> $GITHUB_OUTPUT
           
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.tag }}
+          image-ref: ${{ steps.first_tag.outputs.first_tag }}
           format: 'table'
           ignore-unfixed: true
-          exit-code: '0' 
+          exit-code: '0'
 
       - name: Push Docker image to GitHub Packages
         uses: docker/build-push-action@v5
